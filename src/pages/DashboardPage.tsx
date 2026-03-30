@@ -5,7 +5,7 @@ import { CHART_COLORS } from '../constants/chartColors';
 import { useGenerationStore } from '../store/generationStore';
 import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { aggregateByTime, aggregateByUser, aggregateByModel, aggregateByType } from '../utils/aggregations';
-import { projectMonth } from '../utils/projections';
+import { projectMonth, projectRange } from '../utils/projections';
 import { formatNumber, formatCredits } from '../utils/formatters';
 import KpiCard from '../components/cards/KpiCard';
 import TopSpendersBar from '../components/charts/TopSpendersBar';
@@ -15,12 +15,14 @@ import ModelBreakdown from '../components/charts/ModelBreakdown';
 import TypeBreakdown from '../components/charts/TypeBreakdown';
 import ProjectionGauge from '../components/charts/ProjectionGauge';
 import CumulativeArea from '../components/charts/CumulativeArea';
+import CumulativeRangeChart from '../components/charts/CumulativeRangeChart';
 import ChartHeader from '../components/cards/ChartHeader';
 import GranularityToggle from '../components/filters/GranularityToggle';
 import type { TimeGranularity } from '../types/generation';
 
 export default function DashboardPage() {
-  const { anomalies, targets } = useGenerationStore();
+  const { anomalies, targets, datePreset } = useGenerationStore();
+  const isMonthMode = datePreset === 'thisMonth' || datePreset === 'lastMonth';
   const records = useFilteredRecords();
   const [granularity, setGranularity] = useState<TimeGranularity>('daily');
 
@@ -71,6 +73,10 @@ export default function DashboardPage() {
   const monthlyTarget = targets.find((t) => t.period === 'monthly' && !t.email);
   const projection = useMemo(
     () => projectMonth(records, new Date(), monthlyTarget?.amount ?? null),
+    [records, monthlyTarget]
+  );
+  const rangeProjection = useMemo(
+    () => projectRange(records, monthlyTarget?.amount ?? null),
     [records, monthlyTarget]
   );
 
@@ -160,44 +166,51 @@ export default function DashboardPage() {
       </div>
 
       {/* Projection Alert Banner */}
-      {monthlyTarget && projection.daysUntilBudgetExhausted !== null && (
-        <div className={`rounded-xl border p-4 flex items-center gap-3 ${
-          projection.daysUntilBudgetExhausted === 0
-            ? 'bg-red-500/10 border-red-500/30 text-red-400'
-            : projection.daysUntilBudgetExhausted <= 7
-              ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-              : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-        }`}>
-          <Clock size={20} />
-          <div>
-            <p className="font-semibold text-sm">
-              {projection.daysUntilBudgetExhausted === 0
-                ? 'Budget exhausted! Current spend has exceeded the monthly target.'
-                : `At current burn rate (${formatCredits(projection.burnRate)}/day), budget will be exhausted in ~${projection.daysUntilBudgetExhausted} days`
-              }
-            </p>
-            <p className="text-xs mt-0.5 opacity-75">
-              {formatCredits(projection.currentTotal)} of {formatCredits(monthlyTarget.amount)} credits used
-              {' '}&middot; Day {projection.daysElapsed} of {projection.daysInMonth}
-              {' '}&middot; Projected total: {formatCredits(projection.projectedMonthTotal)}
-            </p>
-          </div>
-        </div>
-      )}
+      {(() => {
+        const br = isMonthMode ? projection.burnRate : rangeProjection.burnRate;
+        const total = isMonthMode ? projection.currentTotal : rangeProjection.currentTotal;
+        const proj = isMonthMode ? projection.projectedMonthTotal : rangeProjection.projectedNext30Days;
+        const exhaust = isMonthMode ? projection.daysUntilBudgetExhausted : rangeProjection.daysUntilBudgetExhausted;
 
-      {!monthlyTarget && (
-        <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex items-center gap-3 text-indigo-400">
-          <TrendingUp size={20} />
-          <div>
-            <p className="font-semibold text-sm">
-              Daily burn rate: {formatCredits(projection.burnRate)} credits/day &middot; Projected month total: {formatCredits(projection.projectedMonthTotal)}
-            </p>
-            <p className="text-xs mt-0.5 opacity-75">
-              Set a monthly target in Settings to track budget exhaustion
-            </p>
+        if (monthlyTarget && exhaust !== null) {
+          return (
+            <div className={`rounded-xl border p-4 flex items-center gap-3 ${
+              exhaust === 0
+                ? 'bg-red-500/10 border-red-500/30 text-red-400'
+                : exhaust <= 7
+                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                  : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+            }`}>
+              <Clock size={20} />
+              <div>
+                <p className="font-semibold text-sm">
+                  {exhaust === 0
+                    ? 'Budget exhausted! Current spend has exceeded the monthly target.'
+                    : `At current burn rate (${formatCredits(br)}/day), budget will be exhausted in ~${exhaust} days`
+                  }
+                </p>
+                <p className="text-xs mt-0.5 opacity-75">
+                  {formatCredits(total)} spent &middot; Projected: {formatCredits(proj)}
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex items-center gap-3 text-indigo-400">
+            <TrendingUp size={20} />
+            <div>
+              <p className="font-semibold text-sm">
+                Daily burn rate: {formatCredits(br)} credits/day &middot; {isMonthMode ? `Projected month total: ${formatCredits(proj)}` : `Projected next 30 days: ${formatCredits(proj)}`}
+              </p>
+              <p className="text-xs mt-0.5 opacity-75">
+                Set a monthly target in Settings to track budget exhaustion
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Main charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -213,8 +226,15 @@ export default function DashboardPage() {
 
       {/* Cumulative projection chart */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-        <ChartHeader title="Cumulative Month Spend vs Target" tooltip="Solid line = actual cumulative spend so far. Dashed line = projected spend for remaining days. Red dashed line = your monthly target (if set)." />
-        <CumulativeArea projection={projection} />
+        <ChartHeader
+          title={isMonthMode ? 'Cumulative Month Spend vs Target' : `Cumulative Spend – ${rangeProjection.rangeLabel}`}
+          tooltip="Solid line = actual cumulative spend so far. Dashed line = projected spend for remaining days. Red dashed line = your monthly target (if set)."
+        />
+        {isMonthMode ? (
+          <CumulativeArea projection={projection} />
+        ) : (
+          <CumulativeRangeChart data={rangeProjection.cumulativeData} />
+        )}
       </div>
 
       {/* Second row - Top Spenders */}
