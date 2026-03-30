@@ -36,7 +36,7 @@ export default function SpendersPage() {
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Rank</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
-                  <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Credits</th>
+                  <th className="px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Credits</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Requests</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Generations</th>
                   <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Avg/Req</th>
@@ -44,7 +44,10 @@ export default function SpendersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {userAgg.slice(0, 100).map((user, idx) => (
+                {(() => {
+                const top100 = userAgg.slice(0, 100);
+                const maxCredits = top100[0]?.totalCredits || 1;
+                return top100.map((user, idx) => (
                   <tr
                     key={user.email}
                     onClick={() => setSelectedUser(user.email === selectedUser ? null : user.email)}
@@ -54,16 +57,30 @@ export default function SpendersPage() {
                         : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <td className="px-4 py-3 text-sm text-gray-400 font-mono">#{idx + 1}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{user.email}</td>
-                    <td className="px-4 py-3 text-sm text-right font-semibold" style={{ color: CHART_COLORS[idx % CHART_COLORS.length] }}>
-                      {formatCredits(user.totalCredits)}
+                    <td className="px-4 py-2 text-sm text-gray-400 font-mono">#{idx + 1}</td>
+                    <td className="px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">{user.email}</td>
+                    <td className="px-4 py-2 min-w-[200px]">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${(user.totalCredits / maxCredits) * 100}%`,
+                              backgroundColor: CHART_COLORS[idx % CHART_COLORS.length],
+                              opacity: 0.7,
+                            }}
+                          />
+                        </div>
+                        <span className="text-sm font-semibold shrink-0 w-14 text-right" style={{ color: CHART_COLORS[idx % CHART_COLORS.length] }}>
+                          {formatCredits(user.totalCredits)}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-600 dark:text-gray-300">{formatNumber(user.totalRequests)}</td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-600 dark:text-gray-300">{formatNumber(user.totalGenerations)}</td>
-                    <td className="px-4 py-3 text-sm text-right text-gray-600 dark:text-gray-300">{user.avgCreditsPerRequest.toFixed(1)}</td>
-                    <td className="px-4 py-3">
-                      <ResponsiveContainer width={80} height={30}>
+                    <td className="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-300">{formatNumber(user.totalRequests)}</td>
+                    <td className="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-300">{formatNumber(user.totalGenerations)}</td>
+                    <td className="px-4 py-2 text-sm text-right text-gray-600 dark:text-gray-300">{user.avgCreditsPerRequest.toFixed(1)}</td>
+                    <td className="px-4 py-2">
+                      <ResponsiveContainer width={80} height={28}>
                         <LineChart data={user.dailyCredits}>
                           <Line
                             type="monotone"
@@ -76,7 +93,8 @@ export default function SpendersPage() {
                       </ResponsiveContainer>
                     </td>
                   </tr>
-                ))}
+                ));
+              })()}
               </tbody>
             </table>
           </div>
