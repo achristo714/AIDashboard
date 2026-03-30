@@ -1,0 +1,48 @@
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { CHART_COLORS } from '../../constants/chartColors';
+import { truncateEmail, formatNumber } from '../../utils/formatters';
+import type { UserAggregation } from '../../utils/aggregations';
+
+interface Props {
+  data: UserAggregation[];
+  limit?: number;
+}
+
+export default function TopSpendersBar({ data, limit = 10 }: Props) {
+  const chartData = data.slice(0, limit).map((u) => ({
+    email: truncateEmail(u.email, 20),
+    fullEmail: u.email,
+    credits: u.totalCredits,
+  }));
+
+  if (chartData.length === 0) {
+    return <div className="h-80 flex items-center justify-center text-gray-400">No data available</div>;
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={400}>
+      <BarChart data={chartData} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
+        <XAxis type="number" tickFormatter={(v) => formatNumber(v)} />
+        <YAxis
+          type="category"
+          dataKey="email"
+          width={160}
+          tick={{ fontSize: 12 }}
+        />
+        <Tooltip
+          formatter={(value) => [formatNumber(Number(value)) + ' credits', 'Credits']}
+          labelFormatter={(label) => {
+            const item = chartData.find((d) => d.email === label);
+            return item?.fullEmail || label;
+          }}
+          contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+        />
+        <Bar dataKey="credits" radius={[0, 6, 6, 0]}>
+          {chartData.map((_, idx) => (
+            <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
