@@ -22,12 +22,9 @@ const navItems = [
 export default function Sidebar() {
   return (
     <aside className="w-64 bg-[#1e1e2e] text-white flex flex-col shrink-0 h-screen sticky top-0">
-      <div className="px-5 py-4 border-b border-white/10 flex items-center gap-3">
-        <img src={import.meta.env.BASE_URL + 'logo.svg'} alt="xfigura" className="w-8 h-8" />
-        <div>
-          <h1 className="text-lg font-bold tracking-widest text-[#3300FF] uppercase">xfigura</h1>
-          <p className="text-[10px] text-gray-400 -mt-0.5 tracking-wider">Generation Dashboard</p>
-        </div>
+      <div className="px-6 py-5 border-b border-white/10">
+        <h1 className="text-lg font-bold tracking-widest text-[#3300FF] uppercase">xfigura</h1>
+        <p className="text-[10px] text-gray-400 mt-0.5 tracking-wider">Generation Dashboard</p>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map((item) => (
