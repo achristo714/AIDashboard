@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import DashboardLayout from './components/layout/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import SpendersPage from './pages/SpendersPage';
@@ -18,7 +18,7 @@ export default function App() {
   }, [loadFromStorage]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<DashboardPage />} />
@@ -30,6 +30,6 @@ export default function App() {
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
