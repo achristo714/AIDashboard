@@ -206,11 +206,18 @@ export default function DashboardPage() {
         );
       })()}
 
-      {/* Main charts row */}
+      {/* Cumulative + Projection gauge */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <ChartHeader title="Credit Spend" tooltip="Amber bars = daily credit spend. Indigo line = 7-day moving average showing the underlying trend." />
-          <CreditDualChart dailyData={dailySeries} />
+          <ChartHeader
+            title={isMonthMode ? 'Cumulative Month Spend vs Target' : `Cumulative Spend – ${rangeProjection.rangeLabel}`}
+            tooltip="Solid line = actual cumulative spend so far. Dashed line = projected spend for remaining days. Red dashed line = your monthly target (if set)."
+          />
+          {isMonthMode ? (
+            <CumulativeArea projection={projection} />
+          ) : (
+            <CumulativeRangeChart data={rangeProjection.cumulativeData} />
+          )}
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <ChartHeader title="Monthly Projection" tooltip="Estimates end-of-month credit usage using a blend of linear regression (60%) and moving average (40%). Set a target in Settings to see on-track status." />
@@ -218,17 +225,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Cumulative projection chart */}
+      {/* Daily credit spend */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-        <ChartHeader
-          title={isMonthMode ? 'Cumulative Month Spend vs Target' : `Cumulative Spend – ${rangeProjection.rangeLabel}`}
-          tooltip="Solid line = actual cumulative spend so far. Dashed line = projected spend for remaining days. Red dashed line = your monthly target (if set)."
-        />
-        {isMonthMode ? (
-          <CumulativeArea projection={projection} />
-        ) : (
-          <CumulativeRangeChart data={rangeProjection.cumulativeData} />
-        )}
+        <ChartHeader title="Credit Spend" tooltip="Amber bars = daily credit spend. Indigo line = 7-day moving average showing the underlying trend." />
+        <CreditDualChart dailyData={dailySeries} />
       </div>
 
       {/* Second row - Top Spenders */}
