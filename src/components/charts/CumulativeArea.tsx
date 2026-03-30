@@ -27,6 +27,8 @@ export default function CumulativeArea({ projection }: Props) {
             return [formatNumber(Number(value)), labels[String(name)] || name];
           }}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Area
           type="monotone"

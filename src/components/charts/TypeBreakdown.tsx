@@ -46,6 +46,8 @@ export default function TypeBreakdown({ data }: Props) {
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)) + ' credits', 'Credits']}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Legend
           verticalAlign="bottom"

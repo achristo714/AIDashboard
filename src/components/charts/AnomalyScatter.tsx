@@ -57,6 +57,8 @@ export default function AnomalyScatter({ records, anomalies }: Props) {
             return formatNumber(Number(value));
           }}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Scatter name="Normal" data={normalPoints} fill="#94a3b8" fillOpacity={0.4} />
         <Scatter name="Anomaly" data={anomalyPoints} fill="#ef4444" fillOpacity={0.8} />

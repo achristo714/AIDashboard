@@ -23,6 +23,8 @@ export default function GenerationsPerDay({ data }: Props) {
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)), 'Generations']}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Bar dataKey="totalGenerations" fill="#f59e0b" radius={[4, 4, 0, 0]} />
       </BarChart>

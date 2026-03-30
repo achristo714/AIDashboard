@@ -104,7 +104,7 @@ export default function GenerationsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
               <XAxis type="number" tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
               <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 12, fill: theme.tickColor }} />
-              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Generations']} contentStyle={theme.tooltipStyle} />
+              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Generations']} contentStyle={theme.tooltipStyle} labelStyle={theme.tooltipLabelStyle} itemStyle={theme.tooltipItemStyle} />
               <Bar dataKey="generations" radius={[0, 6, 6, 0]}>
                 {modelGenData.map((_, idx) => (
                   <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
@@ -122,7 +122,7 @@ export default function GenerationsPage() {
               <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: theme.tickColor }} />
               <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
-              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Requests']} contentStyle={theme.tooltipStyle} />
+              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Requests']} contentStyle={theme.tooltipStyle} labelStyle={theme.tooltipLabelStyle} itemStyle={theme.tooltipItemStyle} />
               <Bar dataKey="requests" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

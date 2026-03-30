@@ -37,6 +37,8 @@ export default function ModelBreakdown({ data, dataKey = 'totalCredits', label =
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)), label]}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Legend
           verticalAlign="bottom"

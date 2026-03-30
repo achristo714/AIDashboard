@@ -38,6 +38,8 @@ export default function TopSpendersBar({ data, limit = 10 }: Props) {
             return item?.fullEmail || label;
           }}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Bar dataKey="credits" radius={[0, 6, 6, 0]}>
           {chartData.map((_, idx) => (

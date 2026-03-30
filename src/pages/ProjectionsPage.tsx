@@ -124,6 +124,8 @@ export default function ProjectionsPage() {
                 name === 'totalCredits' ? 'Credits' : 'Target',
               ]}
               contentStyle={theme.tooltipStyle}
+              labelStyle={theme.tooltipLabelStyle}
+              itemStyle={theme.tooltipItemStyle}
             />
             <Bar dataKey="totalCredits" fill="#6366f1" radius={[4, 4, 0, 0]} name="Credits" />
           </BarChart>

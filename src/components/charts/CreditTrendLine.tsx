@@ -35,6 +35,8 @@ export default function CreditTrendLine({
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)), label]}
           contentStyle={theme.tooltipStyle}
+          labelStyle={theme.tooltipLabelStyle}
+          itemStyle={theme.tooltipItemStyle}
         />
         <Line
           type="monotone"
