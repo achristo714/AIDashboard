@@ -9,7 +9,7 @@ interface Props {
   limit?: number;
 }
 
-export default function TopSpendersBar({ data, limit = 20 }: Props) {
+export default function TopSpendersBar({ data, limit = 15 }: Props) {
   const theme = useChartTheme();
   const chartData = data.slice(0, limit).map((u) => ({
     email: truncateEmail(u.email, 20),
@@ -22,7 +22,7 @@ export default function TopSpendersBar({ data, limit = 20 }: Props) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(300, chartData.length * 36)}>
+    <ResponsiveContainer width="100%" height={Math.min(550, Math.max(300, chartData.length * 36))}>
       <BarChart data={chartData} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
         <XAxis type="number" tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
         <YAxis
