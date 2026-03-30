@@ -36,6 +36,38 @@ export default function DashboardPage() {
   const activeAnomalies = useMemo(() => anomalies.filter((a) => !a.dismissed).length, [anomalies]);
   const topSpender = userAgg[0];
 
+  // User activity tiers based on generation rate in the filtered date range
+  const { activeUsers, casualUsers } = useMemo(() => {
+    if (records.length === 0) return { activeUsers: 0, casualUsers: 0 };
+
+    // Determine weeks and months in the filtered range
+    const times = records.map((r) => new Date(r.time).getTime());
+    const minTime = Math.min(...times);
+    const maxTime = Math.max(...times);
+    const spanMs = Math.max(maxTime - minTime, 1);
+    const spanWeeks = Math.max(spanMs / (7 * 86400000), 1);
+    const spanMonths = Math.max(spanMs / (30 * 86400000), 1);
+
+    // Sum generations per user
+    const userGens = new Map<string, number>();
+    for (const r of records) {
+      userGens.set(r.email, (userGens.get(r.email) || 0) + r.numberOfGenerations);
+    }
+
+    let active = 0;
+    let casual = 0;
+    for (const [, gens] of userGens) {
+      const weeklyRate = gens / spanWeeks;
+      const monthlyRate = gens / spanMonths;
+      if (weeklyRate >= 15) {
+        active++;
+      } else if (monthlyRate >= 4) {
+        casual++;
+      }
+    }
+    return { activeUsers: active, casualUsers: casual };
+  }, [records]);
+
   const monthlyTarget = targets.find((t) => t.period === 'monthly' && !t.email);
   const projection = useMemo(
     () => projectMonth(records, new Date(), monthlyTarget?.amount ?? null),
@@ -64,7 +96,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
         <KpiCard
           title="Total Credits"
           value={formatCredits(totalCredits)}
@@ -88,11 +120,27 @@ export default function DashboardPage() {
           color="emerald"
         />
         <KpiCard
-          title="Active Users"
+          title="All Users"
           value={formatNumber(uniqueUsers)}
           icon={<Users size={20} />}
-          tooltip="Count of unique email addresses that made at least one request in the selected date range."
+          tooltip="Total unique email addresses that made at least one request in the selected date range."
           color="cyan"
+        />
+        <KpiCard
+          title="Active Users"
+          value={formatNumber(activeUsers)}
+          subtitle={`of ${uniqueUsers} total`}
+          icon={<Zap size={20} />}
+          tooltip="Users generating 15+ images per week (based on their rate in the selected date range). These are your power users."
+          color="emerald"
+        />
+        <KpiCard
+          title="Casual Users"
+          value={formatNumber(casualUsers)}
+          subtitle={`4+ images/month`}
+          icon={<Users size={20} />}
+          tooltip="Users generating 4+ images per month but fewer than 15/week. Engaged but not heavy users."
+          color="amber"
         />
         <KpiCard
           title="Anomalies"
