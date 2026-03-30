@@ -237,6 +237,12 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* Daily credit spend (non-cumulative) */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <ChartHeader title="Daily Credit Spend" tooltip="Credits consumed each day (non-cumulative). Shows daily spend patterns and spikes. Use the date filter to zoom into specific periods." />
+        <CreditTrendLine data={dailySeries} dataKey="totalCredits" color="#f59e0b" label="Credits" />
+      </div>
+
       {/* Second row - Top Spenders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">

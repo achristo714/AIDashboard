@@ -3,6 +3,7 @@ import { useGenerationStore } from '../store/generationStore';
 import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { projectMonth, projectRange } from '../utils/projections';
 import { aggregateByTime } from '../utils/aggregations';
+import CreditTrendLine from '../components/charts/CreditTrendLine';
 import { formatNumber, formatCredits } from '../utils/formatters';
 import ProjectionGauge from '../components/charts/ProjectionGauge';
 import CumulativeArea from '../components/charts/CumulativeArea';
@@ -42,6 +43,9 @@ export default function ProjectionsPage() {
   const momChange = prevProjection.currentTotal > 0
     ? ((monthProjection.currentTotal - prevProjection.currentTotal) / prevProjection.currentTotal) * 100
     : 0;
+
+  // Daily spend (non-cumulative)
+  const dailySeries = useMemo(() => aggregateByTime(records, 'daily'), [records]);
 
   // Monthly comparison bar data (works for all modes)
   const monthlyData = useMemo(() => {
@@ -148,6 +152,12 @@ export default function ProjectionsPage() {
             <CumulativeRangeChart data={rangeProjection.cumulativeData} />
           )}
         </div>
+      </div>
+
+      {/* Daily spend (non-cumulative) */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Daily Credit Spend</h3>
+        <CreditTrendLine data={dailySeries} dataKey="totalCredits" color="#f59e0b" label="Credits" />
       </div>
 
       {/* Monthly comparison */}
