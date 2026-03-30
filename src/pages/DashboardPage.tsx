@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Coins, ImageIcon, Zap, Users, AlertTriangle, Crown } from 'lucide-react';
+import { Coins, ImageIcon, Zap, Users, AlertTriangle, Crown, Clock, TrendingUp } from 'lucide-react';
 import { useGenerationStore } from '../store/generationStore';
 import { aggregateByTime, aggregateByUser, aggregateByModel, aggregateByType } from '../utils/aggregations';
 import { projectMonth } from '../utils/projections';
@@ -11,6 +11,7 @@ import GenerationsPerDay from '../components/charts/GenerationsPerDay';
 import ModelBreakdown from '../components/charts/ModelBreakdown';
 import TypeBreakdown from '../components/charts/TypeBreakdown';
 import ProjectionGauge from '../components/charts/ProjectionGauge';
+import CumulativeArea from '../components/charts/CumulativeArea';
 import GranularityToggle from '../components/filters/GranularityToggle';
 import type { TimeGranularity } from '../types/generation';
 
@@ -99,6 +100,46 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* Projection Alert Banner */}
+      {monthlyTarget && projection.daysUntilBudgetExhausted !== null && (
+        <div className={`rounded-xl border p-4 flex items-center gap-3 ${
+          projection.daysUntilBudgetExhausted === 0
+            ? 'bg-red-500/10 border-red-500/30 text-red-400'
+            : projection.daysUntilBudgetExhausted <= 7
+              ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+              : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+        }`}>
+          <Clock size={20} />
+          <div>
+            <p className="font-semibold text-sm">
+              {projection.daysUntilBudgetExhausted === 0
+                ? 'Budget exhausted! Current spend has exceeded the monthly target.'
+                : `At current burn rate (${formatCredits(projection.burnRate)}/day), budget will be exhausted in ~${projection.daysUntilBudgetExhausted} days`
+              }
+            </p>
+            <p className="text-xs mt-0.5 opacity-75">
+              {formatCredits(projection.currentTotal)} of {formatCredits(monthlyTarget.amount)} credits used
+              {' '}&middot; Day {projection.daysElapsed} of {projection.daysInMonth}
+              {' '}&middot; Projected total: {formatCredits(projection.projectedMonthTotal)}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {!monthlyTarget && (
+        <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex items-center gap-3 text-indigo-400">
+          <TrendingUp size={20} />
+          <div>
+            <p className="font-semibold text-sm">
+              Daily burn rate: {formatCredits(projection.burnRate)} credits/day &middot; Projected month total: {formatCredits(projection.projectedMonthTotal)}
+            </p>
+            <p className="text-xs mt-0.5 opacity-75">
+              Set a monthly target in Settings to track budget exhaustion
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Main charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
@@ -109,6 +150,12 @@ export default function DashboardPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Projection</h3>
           <ProjectionGauge projection={projection} />
         </div>
+      </div>
+
+      {/* Cumulative projection chart */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Cumulative Month Spend vs Target</h3>
+        <CumulativeArea projection={projection} />
       </div>
 
       {/* Second row */}
