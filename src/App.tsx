@@ -7,6 +7,7 @@ import GenerationsPage from './pages/GenerationsPage';
 import ProjectionsPage from './pages/ProjectionsPage';
 import AnomaliesPage from './pages/AnomaliesPage';
 import DataPage from './pages/DataPage';
+import InsightsPage from './pages/InsightsPage';
 import SettingsPage from './pages/SettingsPage';
 import { useGenerationStore } from './store/generationStore';
 
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/generations" element={<GenerationsPage />} />
           <Route path="/projections" element={<ProjectionsPage />} />
           <Route path="/anomalies" element={<AnomaliesPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
           <Route path="/data" element={<DataPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

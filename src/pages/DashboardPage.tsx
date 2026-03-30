@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Coins, ImageIcon, Zap, Users, AlertTriangle, Crown, Clock, TrendingUp } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
+import { CHART_COLORS } from '../constants/chartColors';
 import { useGenerationStore } from '../store/generationStore';
 import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { aggregateByTime, aggregateByUser, aggregateByModel, aggregateByType } from '../utils/aggregations';
@@ -175,19 +177,25 @@ export default function DashboardPage() {
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <ChartHeader title="Spender Leaderboard" tooltip="Quick-view ranked list of top users. Click 'Top Spenders' in the sidebar for full details and drill-down." />
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {userAgg.slice(0, 10).map((user, idx) => (
-              <div key={user.email} className="flex items-center gap-3">
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+              <div key={user.email} className="flex items-center gap-2">
+                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0 ${
                   idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-amber-700' : 'bg-gray-600'
                 }`}>
                   {idx + 1}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
-                  <p className="text-xs text-gray-400">{formatNumber(user.totalRequests)} requests</p>
+                  <p className="text-xs font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
                 </div>
-                <span className="text-sm font-semibold text-indigo-500">{formatCredits(user.totalCredits)}</span>
+                <div className="w-16 h-6 shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={user.dailyCredits}>
+                      <Line type="monotone" dataKey="credits" stroke={CHART_COLORS[idx % CHART_COLORS.length]} strokeWidth={1.5} dot={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <span className="text-xs font-semibold text-indigo-500 w-12 text-right shrink-0">{formatCredits(user.totalCredits)}</span>
               </div>
             ))}
           </div>

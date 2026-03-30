@@ -5,6 +5,7 @@ import {
   ImageIcon,
   TrendingUp,
   AlertTriangle,
+  Lightbulb,
   Database,
   Settings,
 } from 'lucide-react';
@@ -15,6 +16,7 @@ const navItems = [
   { to: '/generations', icon: ImageIcon, label: 'Generations' },
   { to: '/projections', icon: TrendingUp, label: 'Projections' },
   { to: '/anomalies', icon: AlertTriangle, label: 'Anomalies' },
+  { to: '/insights', icon: Lightbulb, label: 'Insights' },
   { to: '/data', icon: Database, label: 'Data' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
