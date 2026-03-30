@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ['main', 'claude/xfigura-spending-dashboard-LipFA']
+    branches: ['main']
 
 permissions:
   contents: read
