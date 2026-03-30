@@ -11,6 +11,7 @@ import KpiCard from '../components/cards/KpiCard';
 import CreditDualChart from '../components/charts/CreditDualChart';
 import GenerationsPerDay from '../components/charts/GenerationsPerDay';
 import ModelBreakdown from '../components/charts/ModelBreakdown';
+import ModelTrends from '../components/charts/ModelTrends';
 import TypeBreakdown from '../components/charts/TypeBreakdown';
 import ProjectionGauge from '../components/charts/ProjectionGauge';
 import CumulativeArea from '../components/charts/CumulativeArea';
@@ -288,6 +289,12 @@ export default function DashboardPage() {
           <ChartHeader title="Usage by Type" tooltip="Credit consumption by generation type: image-to-image, image upscale, image-to-video, etc." />
           <TypeBreakdown data={typeAgg} />
         </div>
+      </div>
+
+      {/* Model trends over time */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <ChartHeader title="Model Trends Over Time" tooltip="Weekly request count per model. Click legend labels to show/hide. See which models are growing or declining in popularity." />
+        <ModelTrends records={records} />
       </div>
     </div>
   );

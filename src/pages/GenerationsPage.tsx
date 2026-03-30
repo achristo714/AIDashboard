@@ -8,6 +8,7 @@ import CreditTrendLine from '../components/charts/CreditTrendLine';
 import GranularityToggle from '../components/filters/GranularityToggle';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
 import { CHART_COLORS } from '../constants/chartColors';
+import ModelTrends from '../components/charts/ModelTrends';
 import type { TimeGranularity } from '../types/generation';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -93,6 +94,13 @@ export default function GenerationsPage() {
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Requests Over Time</h3>
         <CreditTrendLine data={timeSeries} dataKey="totalRequests" color="#10b981" label="Requests" />
+      </div>
+
+      {/* Model trends over time */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Model Trends Over Time</h3>
+        <p className="text-xs text-gray-400 mb-4">Weekly request count per model. Click legend labels to show/hide models.</p>
+        <ModelTrends records={records} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
