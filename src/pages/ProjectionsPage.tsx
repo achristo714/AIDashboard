@@ -157,7 +157,7 @@ export default function ProjectionsPage() {
       {/* Daily spend (non-cumulative) */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Credit Spend</h3>
-        <CreditDualChart trendData={dailySeries} dailyData={dailySeries} />
+        <CreditDualChart dailyData={dailySeries} />
       </div>
 
       {/* Monthly comparison */}

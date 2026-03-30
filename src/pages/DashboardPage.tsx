@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Coins, ImageIcon, Zap, Users, AlertTriangle, Crown, Clock, TrendingUp } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { CHART_COLORS } from '../constants/chartColors';
@@ -17,16 +17,11 @@ import ProjectionGauge from '../components/charts/ProjectionGauge';
 import CumulativeArea from '../components/charts/CumulativeArea';
 import CumulativeRangeChart from '../components/charts/CumulativeRangeChart';
 import ChartHeader from '../components/cards/ChartHeader';
-import GranularityToggle from '../components/filters/GranularityToggle';
-import type { TimeGranularity } from '../types/generation';
 
 export default function DashboardPage() {
   const { anomalies, targets, datePreset } = useGenerationStore();
   const isMonthMode = datePreset === 'thisMonth' || datePreset === 'lastMonth';
   const records = useFilteredRecords();
-  const [granularity, setGranularity] = useState<TimeGranularity>('daily');
-
-  const timeSeries = useMemo(() => aggregateByTime(records, granularity), [records, granularity]);
   const userAgg = useMemo(() => aggregateByUser(records), [records]);
   const modelAgg = useMemo(() => aggregateByModel(records), [records]);
   const typeAgg = useMemo(() => aggregateByType(records), [records]);
@@ -98,7 +93,6 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
-        <GranularityToggle value={granularity} onChange={setGranularity} />
       </div>
 
       {/* KPI Cards */}
@@ -215,8 +209,8 @@ export default function DashboardPage() {
       {/* Main charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <ChartHeader title="Credit Spend" tooltip="Amber bars = daily credit spend. Indigo line = trend at selected granularity (weekly/monthly). When granularity is Daily, both overlap as amber bars." />
-          <CreditDualChart trendData={timeSeries} dailyData={dailySeries} />
+          <ChartHeader title="Credit Spend" tooltip="Amber bars = daily credit spend. Indigo line = 7-day moving average showing the underlying trend." />
+          <CreditDualChart dailyData={dailySeries} />
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <ChartHeader title="Monthly Projection" tooltip="Estimates end-of-month credit usage using a blend of linear regression (60%) and moving average (40%). Set a target in Settings to see on-track status." />

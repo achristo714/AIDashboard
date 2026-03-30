@@ -6,45 +6,38 @@ import { useChartTheme } from '../../hooks/useChartTheme';
 import type { TimeSeriesPoint } from '../../utils/aggregations';
 
 interface Props {
-  trendData: TimeSeriesPoint[];
   dailyData: TimeSeriesPoint[];
 }
 
-export default function CreditDualChart({ trendData, dailyData }: Props) {
+function computeMovingAverage(data: { value: number }[], window: number): (number | null)[] {
+  const result: (number | null)[] = [];
+  for (let i = 0; i < data.length; i++) {
+    if (i < window - 1) {
+      result.push(null);
+    } else {
+      let sum = 0;
+      for (let j = i - window + 1; j <= i; j++) {
+        sum += data[j].value;
+      }
+      result.push(sum / window);
+    }
+  }
+  return result;
+}
+
+export default function CreditDualChart({ dailyData }: Props) {
   const theme = useChartTheme();
 
-  // Merge daily data into the trend data by label
-  // If granularity is 'daily', they're the same — show bar + line overlay
-  // If weekly/monthly, show the aggregated trend line + daily bars underneath
-  const isDailyGranularity = trendData.length === dailyData.length
-    && trendData.length > 0
-    && trendData[0].label === dailyData[0].label;
+  const ma = computeMovingAverage(
+    dailyData.map((d) => ({ value: d.totalCredits })),
+    7
+  );
 
-  // For daily granularity: single dataset with bar (daily) + line (same data, for clarity)
-  // For weekly/monthly: use daily bars with trend line overlay
-  const merged = isDailyGranularity
-    ? trendData.map((t) => ({
-        label: t.label,
-        dailyCredits: t.totalCredits,
-        trendCredits: t.totalCredits,
-      }))
-    : (() => {
-        // Build a map of trend labels to their values
-        const trendMap = new Map(trendData.map((t) => [t.label, t.totalCredits]));
-        // Use daily data as base, overlay trend where labels match
-        const dailyPoints = dailyData.map((d) => ({
-          label: d.label,
-          dailyCredits: d.totalCredits,
-          trendCredits: undefined as number | undefined,
-        }));
-        // Add trend points at their label positions
-        for (const point of dailyPoints) {
-          if (trendMap.has(point.label)) {
-            point.trendCredits = trendMap.get(point.label);
-          }
-        }
-        return dailyPoints;
-      })();
+  const merged = dailyData.map((d, i) => ({
+    label: d.label,
+    dailyCredits: d.totalCredits,
+    movingAvg: ma[i],
+  }));
 
   if (merged.length === 0) {
     return <div className="h-80 flex items-center justify-center text-gray-400">No data available</div>;
@@ -67,7 +60,7 @@ export default function CreditDualChart({ trendData, dailyData }: Props) {
           formatter={(value, name) => {
             const labels: Record<string, string> = {
               dailyCredits: 'Daily Spend',
-              trendCredits: 'Trend',
+              movingAvg: '7-Day Average',
             };
             return [formatNumber(Number(value)), labels[String(name)] || name];
           }}
@@ -76,22 +69,20 @@ export default function CreditDualChart({ trendData, dailyData }: Props) {
           formatter={(value: string) => {
             const labels: Record<string, string> = {
               dailyCredits: 'Daily Spend',
-              trendCredits: 'Trend',
+              movingAvg: '7-Day Average',
             };
             return <span className="text-xs text-gray-600 dark:text-gray-300">{labels[value] || value}</span>;
           }}
         />
         <Bar dataKey="dailyCredits" fill="#f59e0b" fillOpacity={0.5} radius={[2, 2, 0, 0]} />
-        {!isDailyGranularity && (
-          <Line
-            type="monotone"
-            dataKey="trendCredits"
-            stroke="#6366f1"
-            strokeWidth={2.5}
-            dot={false}
-            connectNulls
-          />
-        )}
+        <Line
+          type="monotone"
+          dataKey="movingAvg"
+          stroke="#6366f1"
+          strokeWidth={2.5}
+          dot={false}
+          connectNulls
+        />
       </ComposedChart>
     </ResponsiveContainer>
   );
