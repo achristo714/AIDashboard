@@ -30,7 +30,7 @@ export default function KpiCard({ title, value, subtitle, icon, tooltip, trend, 
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{title}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{title}</p>
           {tooltip && (
             <div
               className="relative"
