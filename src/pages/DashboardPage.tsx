@@ -8,7 +8,6 @@ import { aggregateByTime, aggregateByUser, aggregateByModel, aggregateByType } f
 import { projectMonth, projectRange } from '../utils/projections';
 import { formatNumber, formatCredits } from '../utils/formatters';
 import KpiCard from '../components/cards/KpiCard';
-import TopSpendersBar from '../components/charts/TopSpendersBar';
 import CreditDualChart from '../components/charts/CreditDualChart';
 import GenerationsPerDay from '../components/charts/GenerationsPerDay';
 import ModelBreakdown from '../components/charts/ModelBreakdown';
@@ -231,37 +230,45 @@ export default function DashboardPage() {
         <CreditDualChart dailyData={dailySeries} />
       </div>
 
-      {/* Second row - Top Spenders */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <ChartHeader title="Top Spenders" tooltip="Top 10 users ranked by total credits consumed in the selected date range." />
-          <TopSpendersBar data={userAgg} />
-        </div>
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <ChartHeader title="Spender Leaderboard" tooltip="Quick-view ranked list of top users. Click 'Top Spenders' in the sidebar for full details and drill-down." />
-          <div className="space-y-3">
-            {userAgg.slice(0, 10).map((user, idx) => (
+      {/* Top Spenders - unified view */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <ChartHeader title="Top Spenders" tooltip="Top 10 users by credits. Bar = credits, sparkline = daily trend, plus request count." />
+        <div className="space-y-2">
+          {(() => {
+            const top10 = userAgg.slice(0, 10);
+            const maxCredits = top10[0]?.totalCredits || 1;
+            return top10.map((user, idx) => (
               <div key={user.email} className="flex items-center gap-3">
                 <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 ${
                   idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-amber-700' : 'bg-gray-600'
                 }`}>
                   {idx + 1}
                 </span>
-                <div className="flex-1 min-w-0">
+                <div className="w-36 shrink-0 truncate">
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
-                  <p className="text-xs text-gray-400">{formatNumber(user.totalRequests)} req</p>
                 </div>
-                <div className="w-24 h-10 shrink-0">
+                <div className="flex-1 h-7 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden relative">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${(user.totalCredits / maxCredits) * 100}%`,
+                      backgroundColor: CHART_COLORS[idx % CHART_COLORS.length],
+                      opacity: 0.7,
+                    }}
+                  />
+                </div>
+                <div className="w-20 h-8 shrink-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={user.dailyCredits}>
                       <Line type="monotone" dataKey="credits" stroke={CHART_COLORS[idx % CHART_COLORS.length]} strokeWidth={1.5} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+                <span className="text-xs text-gray-400 w-14 text-right shrink-0">{formatNumber(user.totalRequests)} req</span>
                 <span className="text-sm font-bold text-indigo-400 w-14 text-right shrink-0">{formatCredits(user.totalCredits)}</span>
               </div>
-            ))}
-          </div>
+            ));
+          })()}
         </div>
       </div>
 

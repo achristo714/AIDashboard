@@ -44,7 +44,7 @@ export default function SpendersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {userAgg.map((user, idx) => (
+                {userAgg.slice(0, 100).map((user, idx) => (
                   <tr
                     key={user.email}
                     onClick={() => setSelectedUser(user.email === selectedUser ? null : user.email)}
