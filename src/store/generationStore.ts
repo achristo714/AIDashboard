@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { get as idbGet, set as idbSet } from 'idb-keyval';
 import type { GenerationRecord, AnomalyFlag, SpendTarget } from '../types/generation';
 
+export type DatePreset = 'all' | 'today' | 'last7' | 'last30' | 'thisMonth' | 'lastMonth' | 'thisQuarter' | 'custom';
+
 interface GenerationState {
   records: GenerationRecord[];
   anomalies: AnomalyFlag[];
@@ -9,6 +11,9 @@ interface GenerationState {
   isLoading: boolean;
   lastUploadAt: string | null;
   darkMode: boolean;
+  datePreset: DatePreset;
+  customDateStart: string | null;
+  customDateEnd: string | null;
 
   setRecords: (records: GenerationRecord[]) => void;
   addRecords: (newRecords: GenerationRecord[]) => void;
@@ -19,6 +24,8 @@ interface GenerationState {
   addTarget: (target: SpendTarget) => void;
   removeTarget: (id: string) => void;
   setDarkMode: (dark: boolean) => void;
+  setDatePreset: (preset: DatePreset) => void;
+  setCustomDateRange: (start: string, end: string) => void;
   loadFromStorage: () => Promise<void>;
 }
 
@@ -29,6 +36,9 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
   isLoading: false,
   lastUploadAt: null,
   darkMode: false,
+  datePreset: 'all' as DatePreset,
+  customDateStart: null,
+  customDateEnd: null,
 
   setRecords: (records) => {
     set({ records, lastUploadAt: new Date().toISOString() });
@@ -77,6 +87,14 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
     const targets = get().targets.filter((t) => t.id !== id);
     set({ targets });
     localStorage.setItem('xfigura-targets', JSON.stringify(targets));
+  },
+
+  setDatePreset: (datePreset) => {
+    set({ datePreset });
+  },
+
+  setCustomDateRange: (start, end) => {
+    set({ datePreset: 'custom' as DatePreset, customDateStart: start, customDateEnd: end });
   },
 
   setDarkMode: (darkMode) => {

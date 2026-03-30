@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
-import { useGenerationStore } from '../store/generationStore';
+import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { aggregateByUser } from '../utils/aggregations';
 import { formatNumber, formatCredits } from '../utils/formatters';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { CHART_COLORS } from '../constants/chartColors';
 
 export default function SpendersPage() {
-  const { records } = useGenerationStore();
+  const records = useFilteredRecords();
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const userAgg = useMemo(() => aggregateByUser(records), [records]);
 

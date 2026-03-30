@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useGenerationStore } from '../store/generationStore';
+import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { detectAnomalies } from '../utils/anomalyDetection';
 import AnomalyScatter from '../components/charts/AnomalyScatter';
 import { AlertTriangle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
@@ -8,7 +9,8 @@ type SeverityFilter = 'all' | 'high' | 'medium' | 'low';
 type StatusFilter = 'active' | 'dismissed' | 'all';
 
 export default function AnomaliesPage() {
-  const { records, anomalies, setAnomalies, dismissAnomaly } = useGenerationStore();
+  const { anomalies, setAnomalies, dismissAnomaly } = useGenerationStore();
+  const records = useFilteredRecords();
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
 

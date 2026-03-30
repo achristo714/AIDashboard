@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Coins, ImageIcon, Zap, Users, AlertTriangle, Crown, Clock, TrendingUp } from 'lucide-react';
 import { useGenerationStore } from '../store/generationStore';
+import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { aggregateByTime, aggregateByUser, aggregateByModel, aggregateByType } from '../utils/aggregations';
 import { projectMonth } from '../utils/projections';
 import { formatNumber, formatCredits } from '../utils/formatters';
@@ -16,7 +17,8 @@ import GranularityToggle from '../components/filters/GranularityToggle';
 import type { TimeGranularity } from '../types/generation';
 
 export default function DashboardPage() {
-  const { records, anomalies, targets } = useGenerationStore();
+  const { anomalies, targets } = useGenerationStore();
+  const records = useFilteredRecords();
   const [granularity, setGranularity] = useState<TimeGranularity>('daily');
 
   const timeSeries = useMemo(() => aggregateByTime(records, granularity), [records, granularity]);
@@ -158,16 +160,37 @@ export default function DashboardPage() {
         <CumulativeArea projection={projection} />
       </div>
 
-      {/* Second row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      {/* Second row - Top Spenders */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Spenders</h3>
           <TopSpendersBar data={userAgg} />
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Images Generated Per Day</h3>
-          <GenerationsPerDay data={dailySeries} />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Spender Leaderboard</h3>
+          <div className="space-y-2">
+            {userAgg.slice(0, 10).map((user, idx) => (
+              <div key={user.email} className="flex items-center gap-3">
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                  idx === 0 ? 'bg-amber-500' : idx === 1 ? 'bg-gray-400' : idx === 2 ? 'bg-amber-700' : 'bg-gray-600'
+                }`}>
+                  {idx + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
+                  <p className="text-xs text-gray-400">{formatNumber(user.totalRequests)} requests</p>
+                </div>
+                <span className="text-sm font-semibold text-indigo-500">{formatCredits(user.totalCredits)}</span>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+
+      {/* Third row - Generations */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Images Generated Per Day</h3>
+        <GenerationsPerDay data={dailySeries} />
       </div>
 
       {/* Third row */}

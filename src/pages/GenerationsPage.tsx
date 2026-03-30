@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useGenerationStore } from '../store/generationStore';
+import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { aggregateByTime, aggregateByModel, aggregateByType, aggregateByHour } from '../utils/aggregations';
 import { formatNumber } from '../utils/formatters';
 import { useChartTheme } from '../hooks/useChartTheme';
@@ -13,7 +13,7 @@ import type { TimeGranularity } from '../types/generation';
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function GenerationsPage() {
-  const { records } = useGenerationStore();
+  const records = useFilteredRecords();
   const [granularity, setGranularity] = useState<TimeGranularity>('daily');
   const theme = useChartTheme();
 

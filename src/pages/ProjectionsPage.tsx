@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useGenerationStore } from '../store/generationStore';
+import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { projectMonth } from '../utils/projections';
 import { aggregateByTime } from '../utils/aggregations';
 import { formatNumber, formatCredits } from '../utils/formatters';
@@ -10,7 +11,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { useChartTheme } from '../hooks/useChartTheme';
 
 export default function ProjectionsPage() {
-  const { records, targets } = useGenerationStore();
+  const { targets } = useGenerationStore();
+  const records = useFilteredRecords();
   const [selectedMonth] = useState(new Date());
   const theme = useChartTheme();
 
