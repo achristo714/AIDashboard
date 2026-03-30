@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useGenerationStore } from '../store/generationStore';
 import { formatNumber } from '../utils/formatters';
-import { Plus, Trash2, Moon, Sun } from 'lucide-react';
+import { Plus, Trash2, Moon, Sun, Share2 } from 'lucide-react';
 import type { SpendTarget } from '../types/generation';
 
 export default function SettingsPage() {
@@ -125,6 +125,32 @@ export default function SettingsPage() {
             Add Target
           </button>
         </div>
+      </div>
+
+      {/* Bake Data for Sharing */}
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Bake Data for Sharing</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Export your data as a JSON file. This can be embedded into the app so anyone visiting the link sees your dashboard pre-loaded with data.
+        </p>
+        <button
+          onClick={() => {
+            const { records, anomalies, targets } = useGenerationStore.getState();
+            const data = JSON.stringify({ records, anomalies, targets }, null, 0);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+          }}
+          disabled={records.length === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          <Share2 size={16} />
+          Export data.json
+        </button>
       </div>
 
       {/* Data Info */}

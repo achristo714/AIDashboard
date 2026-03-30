@@ -115,9 +115,33 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       const targetsJson = localStorage.getItem('xfigura-targets');
       const darkModeJson = localStorage.getItem('xfigura-darkMode');
 
+      let loadedRecords = records || [];
+      let loadedAnomalies = anomalies || [];
+
+      // If no local data, try loading baked-in data
+      if (loadedRecords.length === 0) {
+        try {
+          const res = await fetch(import.meta.env.BASE_URL + 'data.json');
+          if (res.ok) {
+            const baked = await res.json();
+            if (baked.records?.length > 0) {
+              loadedRecords = baked.records;
+              loadedAnomalies = baked.anomalies || [];
+              // Persist so it doesn't re-fetch every time
+              idbSet('xfigura-records', loadedRecords);
+              if (loadedAnomalies.length > 0) {
+                idbSet('xfigura-anomalies', loadedAnomalies);
+              }
+            }
+          }
+        } catch {
+          // No baked data available, that's fine
+        }
+      }
+
       set({
-        records: records || [],
-        anomalies: anomalies || [],
+        records: loadedRecords,
+        anomalies: loadedAnomalies,
         targets: targetsJson ? JSON.parse(targetsJson) : [],
         darkMode: darkModeJson ? JSON.parse(darkModeJson) : false,
         isLoading: false,
