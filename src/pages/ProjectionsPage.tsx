@@ -7,10 +7,12 @@ import ProjectionGauge from '../components/charts/ProjectionGauge';
 import CumulativeArea from '../components/charts/CumulativeArea';
 import { format, subMonths } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useChartTheme } from '../hooks/useChartTheme';
 
 export default function ProjectionsPage() {
   const { records, targets } = useGenerationStore();
   const [selectedMonth] = useState(new Date());
+  const theme = useChartTheme();
 
   const monthlyTarget = targets.find((t) => t.period === 'monthly' && !t.email);
   const projection = useMemo(
@@ -111,15 +113,15 @@ export default function ProjectionsPage() {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Monthly Credit Usage</h3>
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={monthlyData} margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-            <YAxis tickFormatter={(v) => formatNumber(v)} />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: theme.tickColor }} />
+            <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
             <Tooltip
               formatter={(value, name) => [
                 formatNumber(Number(value)),
                 name === 'totalCredits' ? 'Credits' : 'Target',
               ]}
-              contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+              contentStyle={theme.tooltipStyle}
             />
             <Bar dataKey="totalCredits" fill="#6366f1" radius={[4, 4, 0, 0]} name="Credits" />
           </BarChart>

@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { CHART_COLORS } from '../../constants/chartColors';
 import { truncateEmail, formatNumber } from '../../utils/formatters';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { UserAggregation } from '../../utils/aggregations';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function TopSpendersBar({ data, limit = 10 }: Props) {
+  const theme = useChartTheme();
   const chartData = data.slice(0, limit).map((u) => ({
     email: truncateEmail(u.email, 20),
     fullEmail: u.email,
@@ -22,12 +24,12 @@ export default function TopSpendersBar({ data, limit = 10 }: Props) {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart data={chartData} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
-        <XAxis type="number" tickFormatter={(v) => formatNumber(v)} />
+        <XAxis type="number" tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
         <YAxis
           type="category"
           dataKey="email"
           width={160}
-          tick={{ fontSize: 12 }}
+          tick={{ fontSize: 12, fill: theme.tickColor }}
         />
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)) + ' credits', 'Credits']}
@@ -35,7 +37,7 @@ export default function TopSpendersBar({ data, limit = 10 }: Props) {
             const item = chartData.find((d) => d.email === label);
             return item?.fullEmail || label;
           }}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+          contentStyle={theme.tooltipStyle}
         />
         <Bar dataKey="credits" radius={[0, 6, 6, 0]}>
           {chartData.map((_, idx) => (

@@ -1,6 +1,7 @@
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ZAxis } from 'recharts';
 import { parseISO, format } from 'date-fns';
 import { formatNumber } from '../../utils/formatters';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { GenerationRecord, AnomalyFlag } from '../../types/generation';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function AnomalyScatter({ records, anomalies }: Props) {
+  const theme = useChartTheme();
   const anomalyIds = new Set(anomalies.filter((a) => !a.dismissed).map((a) => a.recordId));
 
   // Sample records for performance (max 2000 points)
@@ -38,22 +40,23 @@ export default function AnomalyScatter({ records, anomalies }: Props) {
   return (
     <ResponsiveContainer width="100%" height={360}>
       <ScatterChart margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
         <XAxis
           type="number"
           dataKey="x"
           domain={['auto', 'auto']}
           tickFormatter={(v) => format(new Date(v), 'MMM d')}
           name="Date"
+          tick={{ fill: theme.tickColor }}
         />
-        <YAxis type="number" dataKey="y" name="Credits" tickFormatter={(v) => formatNumber(v)} />
+        <YAxis type="number" dataKey="y" name="Credits" tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
         <ZAxis range={[20, 20]} />
         <Tooltip
           formatter={(value, name) => {
             if (name === 'Date') return format(new Date(Number(value)), 'MMM d, yyyy HH:mm');
             return formatNumber(Number(value));
           }}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+          contentStyle={theme.tooltipStyle}
         />
         <Scatter name="Normal" data={normalPoints} fill="#94a3b8" fillOpacity={0.4} />
         <Scatter name="Anomaly" data={anomalyPoints} fill="#ef4444" fillOpacity={0.8} />

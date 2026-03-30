@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useGenerationStore } from '../store/generationStore';
 import { aggregateByTime, aggregateByModel, aggregateByType, aggregateByHour } from '../utils/aggregations';
 import { formatNumber } from '../utils/formatters';
+import { useChartTheme } from '../hooks/useChartTheme';
 import GenerationsPerDay from '../components/charts/GenerationsPerDay';
 import CreditTrendLine from '../components/charts/CreditTrendLine';
 import GranularityToggle from '../components/filters/GranularityToggle';
@@ -14,6 +15,7 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export default function GenerationsPage() {
   const { records } = useGenerationStore();
   const [granularity, setGranularity] = useState<TimeGranularity>('daily');
+  const theme = useChartTheme();
 
   const timeSeries = useMemo(() => aggregateByTime(records, granularity), [records, granularity]);
   const dailySeries = useMemo(() => aggregateByTime(records, 'daily'), [records]);
@@ -47,6 +49,8 @@ export default function GenerationsPage() {
     generations: m.totalGenerations,
     requests: m.totalRequests,
   }));
+
+  const modelChartHeight = Math.max(300, modelGenData.length * 40);
 
   if (records.length === 0) {
     return (
@@ -95,12 +99,12 @@ export default function GenerationsPage() {
         {/* By model */}
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Generations by Model</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={modelChartHeight}>
             <BarChart data={modelGenData} layout="vertical" margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis type="number" tickFormatter={(v) => formatNumber(v)} />
-              <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Generations']} />
+              <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
+              <XAxis type="number" tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
+              <YAxis type="category" dataKey="name" width={140} tick={{ fontSize: 12, fill: theme.tickColor }} />
+              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Generations']} contentStyle={theme.tooltipStyle} />
               <Bar dataKey="generations" radius={[0, 6, 6, 0]}>
                 {modelGenData.map((_, idx) => (
                   <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />
@@ -115,10 +119,10 @@ export default function GenerationsPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Requests by Type</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={typeAgg.map((t) => ({ name: t.type.replace(/_/g, ' '), requests: t.totalRequests }))} margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis tickFormatter={(v) => formatNumber(v)} />
-              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Requests']} />
+              <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
+              <XAxis dataKey="name" tick={{ fontSize: 11, fill: theme.tickColor }} />
+              <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
+              <Tooltip formatter={(v) => [formatNumber(Number(v)), 'Requests']} contentStyle={theme.tooltipStyle} />
               <Bar dataKey="requests" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -152,7 +156,7 @@ export default function GenerationsPage() {
                           style={{
                             backgroundColor: intensity > 0
                               ? `rgba(99, 102, 241, ${0.1 + intensity * 0.85})`
-                              : '#f1f5f9',
+                              : theme.heatmapEmpty,
                           }}
                           title={`${day} ${hour}:00 - ${count} requests`}
                         />

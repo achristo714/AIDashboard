@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { CHART_COLORS } from '../../constants/chartColors';
 import { formatNumber } from '../../utils/formatters';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { TypeAggregation } from '../../utils/aggregations';
 
 interface Props {
@@ -15,6 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function TypeBreakdown({ data }: Props) {
+  const theme = useChartTheme();
   const labeled = data.map((d) => ({
     ...d,
     displayType: TYPE_LABELS[d.type] || d.type,
@@ -43,7 +45,7 @@ export default function TypeBreakdown({ data }: Props) {
         </Pie>
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)) + ' credits', 'Credits']}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+          contentStyle={theme.tooltipStyle}
         />
         <Legend
           verticalAlign="bottom"

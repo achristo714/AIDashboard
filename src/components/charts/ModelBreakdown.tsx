@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { CHART_COLORS } from '../../constants/chartColors';
 import { formatNumber } from '../../utils/formatters';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { ModelAggregation } from '../../utils/aggregations';
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 }
 
 export default function ModelBreakdown({ data, dataKey = 'totalCredits', label = 'Credits' }: Props) {
+  const theme = useChartTheme();
+
   if (data.length === 0) {
     return <div className="h-80 flex items-center justify-center text-gray-400">No data available</div>;
   }
@@ -33,7 +36,7 @@ export default function ModelBreakdown({ data, dataKey = 'totalCredits', label =
         </Pie>
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)), label]}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+          contentStyle={theme.tooltipStyle}
         />
         <Legend
           verticalAlign="bottom"

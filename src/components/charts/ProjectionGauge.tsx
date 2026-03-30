@@ -1,6 +1,7 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { STATUS_COLORS } from '../../constants/chartColors';
 import { formatNumber, formatPercent } from '../../utils/formatters';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { ProjectionResult } from '../../utils/projections';
 
 interface Props {
@@ -16,6 +17,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function ProjectionGauge({ projection }: Props) {
+  const theme = useChartTheme();
   const { status, percentOfTarget, projectedMonthTotal, currentTotal, targetAmount } = projection;
   const color = STATUS_COLORS[status];
 
@@ -40,7 +42,7 @@ export default function ProjectionGauge({ projection }: Props) {
               stroke="none"
             >
               <Cell fill={color} />
-              <Cell fill="#e5e7eb" />
+              <Cell fill={theme.gaugeEmpty} />
             </Pie>
           </PieChart>
         </ResponsiveContainer>

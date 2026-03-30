@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { formatNumber } from '../../utils/formatters';
+import { useChartTheme } from '../../hooks/useChartTheme';
 import type { TimeSeriesPoint } from '../../utils/aggregations';
 
 interface Props {
@@ -15,6 +16,8 @@ export default function CreditTrendLine({
   color = '#6366f1',
   label = 'Credits',
 }: Props) {
+  const theme = useChartTheme();
+
   if (data.length === 0) {
     return <div className="h-80 flex items-center justify-center text-gray-400">No data available</div>;
   }
@@ -22,16 +25,16 @@ export default function CreditTrendLine({
   return (
     <ResponsiveContainer width="100%" height={320}>
       <LineChart data={data} margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <CartesianGrid strokeDasharray="3 3" stroke={theme.gridColor} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11 }}
+          tick={{ fontSize: 11, fill: theme.tickColor }}
           interval="preserveStartEnd"
         />
-        <YAxis tickFormatter={(v) => formatNumber(v)} />
+        <YAxis tickFormatter={(v) => formatNumber(v)} tick={{ fill: theme.tickColor }} />
         <Tooltip
           formatter={(value) => [formatNumber(Number(value)), label]}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+          contentStyle={theme.tooltipStyle}
         />
         <Line
           type="monotone"
