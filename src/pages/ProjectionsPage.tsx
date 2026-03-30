@@ -3,7 +3,7 @@ import { useGenerationStore } from '../store/generationStore';
 import { useFilteredRecords } from '../hooks/useFilteredRecords';
 import { projectMonth, projectRange } from '../utils/projections';
 import { aggregateByTime } from '../utils/aggregations';
-import CreditTrendLine from '../components/charts/CreditTrendLine';
+import CreditDualChart from '../components/charts/CreditDualChart';
 import { formatNumber, formatCredits } from '../utils/formatters';
 import ProjectionGauge from '../components/charts/ProjectionGauge';
 import CumulativeArea from '../components/charts/CumulativeArea';
@@ -156,8 +156,8 @@ export default function ProjectionsPage() {
 
       {/* Daily spend (non-cumulative) */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Daily Credit Spend</h3>
-        <CreditTrendLine data={dailySeries} dataKey="totalCredits" color="#f59e0b" label="Credits" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Credit Spend</h3>
+        <CreditDualChart trendData={dailySeries} dailyData={dailySeries} />
       </div>
 
       {/* Monthly comparison */}

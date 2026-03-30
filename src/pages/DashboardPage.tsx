@@ -9,7 +9,7 @@ import { projectMonth, projectRange } from '../utils/projections';
 import { formatNumber, formatCredits } from '../utils/formatters';
 import KpiCard from '../components/cards/KpiCard';
 import TopSpendersBar from '../components/charts/TopSpendersBar';
-import CreditTrendLine from '../components/charts/CreditTrendLine';
+import CreditDualChart from '../components/charts/CreditDualChart';
 import GenerationsPerDay from '../components/charts/GenerationsPerDay';
 import ModelBreakdown from '../components/charts/ModelBreakdown';
 import TypeBreakdown from '../components/charts/TypeBreakdown';
@@ -215,8 +215,8 @@ export default function DashboardPage() {
       {/* Main charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-          <ChartHeader title="Credit Usage Trend" tooltip="Total credits consumed over time. Use the Daily/Weekly/Monthly toggle to change granularity. Affected by the date range filter." />
-          <CreditTrendLine data={timeSeries} />
+          <ChartHeader title="Credit Spend" tooltip="Amber bars = daily credit spend. Indigo line = trend at selected granularity (weekly/monthly). When granularity is Daily, both overlap as amber bars." />
+          <CreditDualChart trendData={timeSeries} dailyData={dailySeries} />
         </div>
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
           <ChartHeader title="Monthly Projection" tooltip="Estimates end-of-month credit usage using a blend of linear regression (60%) and moving average (40%). Set a target in Settings to see on-track status." />
@@ -235,12 +235,6 @@ export default function DashboardPage() {
         ) : (
           <CumulativeRangeChart data={rangeProjection.cumulativeData} />
         )}
-      </div>
-
-      {/* Daily credit spend (non-cumulative) */}
-      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
-        <ChartHeader title="Daily Credit Spend" tooltip="Credits consumed each day (non-cumulative). Shows daily spend patterns and spikes. Use the date filter to zoom into specific periods." />
-        <CreditTrendLine data={dailySeries} dataKey="totalCredits" color="#f59e0b" label="Credits" />
       </div>
 
       {/* Second row - Top Spenders */}
